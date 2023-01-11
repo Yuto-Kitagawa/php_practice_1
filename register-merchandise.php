@@ -159,11 +159,6 @@ session_start();
             fd.append('merchandiseDeadlineDate', m_d_date);
             fd.append('merchandiseDeadlineTime', m_d_time);
 
-            console.log(m_name);
-            console.log(m_price);
-            console.log(m_d_date);
-            console.log(m_d_time);
-
             register_merchandise_xhr.open('post', './action/register-merchandise.php')
             register_merchandise_xhr.send(fd);
             register_merchandise_xhr.onload = (e) => {

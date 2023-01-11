@@ -128,6 +128,7 @@ session_start();
     <script>
         let post_number = document.getElementById('postnumber').value;
         document.getElementById('searchAddress').addEventListener('click', () => {
+            console.log("clicked");
             if (post_number != "") {
                 const api_url = "https://zipcloud.ibsnet.co.jp/api/search?zipcode=" + post_number;
                 const get_postnumber_xhr = new XMLHttpRequest();
@@ -139,6 +140,7 @@ session_start();
                     let res = JSON.parse(json)
                     let address = res.results[0].address1 + res.results[0].address2 + res.results[0].address3;
                     document.getElementById('address').value = address;
+                    console.log(address);
                 }
             }
         })

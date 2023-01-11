@@ -1,5 +1,6 @@
 <?php
 session_start();
+$merchandise_id = $_GET['id'];
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -62,16 +63,16 @@ session_start();
         </div>
     </nav>
 
-    <header>
-        <div class="">
-            <img src="./img/index-top.jpg" width="100%" alt="">
-        </div>
-    </header>
-
     <section class="col-10 m-auto mt-5">
-        <div class="lead">商品一覧</div>
-        <div class="d-flex flex-wrap" id="merchandiseListWrapper">
-
+        <div class="d-flex pt-5">
+            <div class="col-12 col-sm-12 col-md-8 col-lg-6 m-auto">
+                <img src="" id="merchandiseImg1" width="100%" alt="">
+            </div>
+            <div class="px-3">
+                <div id="name" class="lead display-6 my-5"></div>
+                <div class="fs-6 lead">Sample Explain Sample Explain Sample Explain Sample Explain Sample Explain Sample Explain Sample Explain Sample Explain Sample Explain Sample Explain Sample Explain Sample Explain Sample Explain Sample Explain </div>
+                <div id="price" class="lead display-6 mt-5"></div>
+            </div>
         </div>
     </section>
 
@@ -88,55 +89,22 @@ session_start();
     </script>
 
     <script>
+        let merchandise_id = "<?php echo $merchandise_id ?>";
+        console.log(merchandise_id);
+
         const get_merchandise_xhr = new XMLHttpRequest();
-        get_merchandise_xhr.open('get', './action/get-merchandise-list.php');
-        get_merchandise_xhr.send();
+        let fd = new FormData();
+        fd.append("merchandise_id", merchandise_id);
+
+        get_merchandise_xhr.open('post', "./action/get-merchandise.php");
+        get_merchandise_xhr.send(fd);
         get_merchandise_xhr.onload = (e) => {
             let json = e.target.response;
             let res = JSON.parse(json);
             console.log(res);
-
-            //商品の数を代入
-            let list_length = res.length;
-
-            let m_list_wrapper = document.getElementById('merchandiseListWrapper');
-
-            for (i = 0; i < list_length; i++) {
-                let merchandise_wrapper = document.createElement('div');
-                merchandise_wrapper.setAttribute('class', 'col-6 col-sm-6 col-md-4 col-lg-3 mt-4')
-
-                let for_padding = document.createElement('div');
-                for_padding.setAttribute('class', 'p-2');
-
-                let merchandise_link = document.createElement('a');
-                merchandise_link.setAttribute('href', "./item.php?id=" + res[i].merchandise_id);
-                merchandise_link.setAttribute('class', 'text-decoration-none')
-
-                let merchandise_img_wrapper = document.createElement('div');
-                let merchandise_img = document.createElement('img');
-                merchandise_img.setAttribute('src', "./img/" + res[i].img1);
-                merchandise_img.setAttribute('class', "merchandise-img");
-                merchandise_img.setAttribute('width', '100%');
-                merchandise_img.setAttribute('alt', '商品' + i + "の写真");
-
-                merchandise_img_wrapper.appendChild(merchandise_img);
-
-                let merchandise_title = document.createElement('div');
-                merchandise_title.textContent = res[i].merchandise_name;
-                merchandise_title.setAttribute('class', 'text-dark lead text-break');
-
-                let merchandise_price = document.createElement('div');
-                merchandise_price.setAttribute('class',"text-dark lead")
-                merchandise_price.textContent = res[i].merchandise_price + "円";
-
-                merchandise_link.appendChild(merchandise_img_wrapper);
-                merchandise_link.appendChild(merchandise_title);
-                merchandise_link.appendChild(merchandise_price);
-                for_padding.appendChild(merchandise_link);
-                merchandise_wrapper.appendChild(for_padding);
-                m_list_wrapper.appendChild(merchandise_wrapper);
-
-            }
+            document.getElementById('price').textContent = res.merchandise_price + "円";
+            document.getElementById('merchandiseImg1').setAttribute('src', "./img/" + res.img1)
+            document.getElementById('name').textContent = res.merchandise_name;
         }
     </script>
 </body>

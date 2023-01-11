@@ -3,3 +3,8 @@ header>div>img {
     object-fit: cover;
     object-position: bottom center;
 }
+
+.merchandise-img {
+    height: 30vh;
+    object-fit: cover;
+}

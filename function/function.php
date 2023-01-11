@@ -55,16 +55,16 @@ class Functions extends Database
             $deadline = $m_d_date + " " + $m_d_time;
 
             if ($m_img2 == "") {
-                $regcister_merchandise_sql = "INSERT INTO merchandise (merchandise_id,merchandise_name,merchandise_price,img1,deadline) VALUES (:mid,:mname, :mprice, :mimg1, :deadline)";
-                $sth = $this->conn->prepare($regcister_merchandise_sql);
+                $register_merchandise_sql = "INSERT INTO merchandise (merchandise_id,merchandise_name,merchandise_price,img1,deadline) VALUES (:mid,:mname, :mprice, :mimg1, :deadline)";
+                $sth = $this->conn->prepare($register_merchandise_sql);
                 $sth->bindValue(':mid', $m_id, PDO::PARAM_STR);
                 $sth->bindValue(':mname', $m_name, PDO::PARAM_STR);
                 $sth->bindValue(':mprice', $m_price, PDO::PARAM_STR);
                 $sth->bindValue(':mimg1', $m_img1, PDO::PARAM_STR);
                 $sth->bindValue(':deadline', $deadline, PDO::PARAM_STR);
             } else if ($m_img3 == "") {
-                $regcister_merchandise_sql = "INSERT INTO merchandise (merchandise_id,merchandise_name,merchandise_price,img1,img2,deadline) VALUES (:mid,:mname, :mprice, :mimg1, :mimg2, :deadline)";
-                $sth = $this->conn->prepare($regcister_merchandise_sql);
+                $register_merchandise_sql = "INSERT INTO merchandise (merchandise_id,merchandise_name,merchandise_price,img1,img2,deadline) VALUES (:mid,:mname, :mprice, :mimg1, :mimg2, :deadline)";
+                $sth = $this->conn->prepare($register_merchandise_sql);
                 $sth->bindValue(':mid', $m_id, PDO::PARAM_STR);
                 $sth->bindValue(':mname', $m_name, PDO::PARAM_STR);
                 $sth->bindValue(':mprice', $m_price, PDO::PARAM_STR);
@@ -72,8 +72,8 @@ class Functions extends Database
                 $sth->bindValue(':mimg2', $m_img2, PDO::PARAM_STR);
                 $sth->bindValue(':deadline', $deadline, PDO::PARAM_STR);
             } else {
-                $regcister_merchandise_sql = "INSERT INTO merchandise (merchandise_id,merchandise_name,merchandise_price,img1,img2,img3,deadline) VALUES (:mid,:mname, :mprice, :mimg1, :mimg2, :mimg3, :deadline)";
-                $sth = $this->conn->prepare($regcister_merchandise_sql);
+                $register_merchandise_sql = "INSERT INTO merchandise (merchandise_id,merchandise_name,merchandise_price,img1,img2,img3,deadline) VALUES (:mid,:mname, :mprice, :mimg1, :mimg2, :mimg3, :deadline)";
+                $sth = $this->conn->prepare($register_merchandise_sql);
                 $sth->bindValue(':mid', $m_id, PDO::PARAM_STR);
                 $sth->bindValue(':mname', $m_name, PDO::PARAM_STR);
                 $sth->bindValue(':mprice', $m_price, PDO::PARAM_STR);
@@ -84,23 +84,23 @@ class Functions extends Database
             }
         } else {
             if ($m_img2 == "") {
-                $regcister_merchandise_sql = "INSERT INTO merchandise (merchandise_id,merchandise_name,merchandise_price,img1,deadline) VALUES (:mid,:mname, :mprice, :mimg1, :deadline)";
-                $sth = $this->conn->prepare($regcister_merchandise_sql);
+                $register_merchandise_sql = "INSERT INTO merchandise (merchandise_id,merchandise_name,merchandise_price,img1) VALUES (:mid,:mname, :mprice, :mimg1)";
+                $sth = $this->conn->prepare($register_merchandise_sql);
                 $sth->bindValue(':mid', $m_id, PDO::PARAM_STR);
                 $sth->bindValue(':mname', $m_name, PDO::PARAM_STR);
                 $sth->bindValue(':mprice', $m_price, PDO::PARAM_STR);
                 $sth->bindValue(':mimg1', $m_img1, PDO::PARAM_STR);
             } else if ($m_img3 == "") {
-                $regcister_merchandise_sql = "INSERT INTO merchandise (merchandise_id,merchandise_name,merchandise_price,img1,img2,deadline) VALUES (:mid,:mname, :mprice, :mimg1, :mimg2,:deadline)";
-                $sth = $this->conn->prepare($regcister_merchandise_sql);
+                $register_merchandise_sql = "INSERT INTO merchandise (merchandise_id,merchandise_name,merchandise_price,img1,img2) VALUES (:mid,:mname, :mprice, :mimg1, :mimg2)";
+                $sth = $this->conn->prepare($register_merchandise_sql);
                 $sth->bindValue(':mid', $m_id, PDO::PARAM_STR);
                 $sth->bindValue(':mname', $m_name, PDO::PARAM_STR);
                 $sth->bindValue(':mprice', $m_price, PDO::PARAM_STR);
                 $sth->bindValue(':mimg1', $m_img1, PDO::PARAM_STR);
                 $sth->bindValue(':mimg2', $m_img2, PDO::PARAM_STR);
             } else {
-                $regcister_merchandise_sql = "INSERT INTO merchandise (merchandise_id,merchandise_name,merchandise_price,img1,img2,img3,deadline) VALUES (:mid,:mname, :mprice, :mimg1, :mimg2, :mimg3, :deadline)";
-                $sth = $this->conn->prepare($regcister_merchandise_sql);
+                $register_merchandise_sql = "INSERT INTO merchandise (merchandise_id,merchandise_name,merchandise_price,img1,img2,img3) VALUES (:mid,:mname, :mprice, :mimg1, :mimg2, :mimg3)";
+                $sth = $this->conn->prepare($register_merchandise_sql);
                 $sth->bindValue(':mid', $m_id, PDO::PARAM_STR);
                 $sth->bindValue(':mname', $m_name, PDO::PARAM_STR);
                 $sth->bindValue(':mprice', $m_price, PDO::PARAM_STR);
@@ -121,5 +121,32 @@ class Functions extends Database
         move_uploaded_file($m_img3_tmp, $destination);
 
         return $m_id;
+    }
+
+    public function get_merchandise_list()
+    {
+        $get_merchandise_list_sql = "SELECT * FROM merchandise ORDER BY registered_time;";
+        $sth = $this->conn->prepare($get_merchandise_list_sql);
+        $sth->execute();
+
+        $return_list = [];
+
+        while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+            array_push($return_list, $row);
+        };
+
+        return $return_list;
+    }
+
+    public function get_merchandise($merchandise_id)
+    {
+        $get_merchandise_sql = "SELECT * FROM merchandise WHERE merchandise_id = :merchandiseid ORDER BY registered_time;";
+        $sth = $this->conn->prepare($get_merchandise_sql);
+        $sth->bindValue(':merchandiseid', $merchandise_id, PDO::PARAM_STR);
+        $sth->execute();
+
+        $res = $sth->fetch(PDO::FETCH_ASSOC);
+
+        return $res;
     }
 }
