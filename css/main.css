@@ -4,7 +4,70 @@ header>div>img {
     object-position: bottom center;
 }
 
-.merchandise-img {
+.merchandise-list-img {
     height: 30vh;
     object-fit: cover;
+}
+
+.merchandise-img {
+    height: 100%;
+    object-fit: cover;
+    transition: .5s all ease-in-out;
+    opacity: 0;
+}
+
+.merchandise-img.show {
+    opacity: 1 !important;
+}
+
+#backMerchandiseImg {
+    background: rgb(255, 255, 255);
+    border-radius: 100px;
+    top: 50%;
+    left: 2%;
+    transform: translateY(-50%);
+    z-index: 99;
+}
+
+
+#nextMerchandiseImg {
+    background: white;
+    border-radius: 100px;
+    top: 50%;
+    right: 2%;
+    transform: translateY(-50%);
+    z-index: 99;
+}
+
+.purchase-screen {
+    transition: .4s all ease-in-out;
+    z-index: 9999;
+    background-color: rgba(128, 128, 128, 0.764);
+    width: 100vw;
+    height: 100vh;
+}
+
+.login-img {
+    height: 100vh;
+    object-fit: cover;
+}
+
+#merchandiseImg1 {
+    object-fit: cover;
+}
+
+.navmargin {
+    margin-top: 10vh !important;
+}
+
+@media screen and (max-width:992px) {}
+
+@media screen and (min-width:765px) {
+    .ms-50 {
+        margin-left: 50%;
+    }
+
+    .signup-img-wrapper {
+        z-index: -99;
+    }
 }

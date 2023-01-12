@@ -1,5 +1,7 @@
 <?php
 session_start();
+$img_index = rand(1, 3);
+
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -17,103 +19,64 @@ session_start();
 
 <body>
 
-    <nav>
-        <div class="header w-100"></div>
-        <div class="container-fluid">
-            <input type="checkbox" class="openSidebarMenu navbar-brand" id="openSidebarMenu">
+    <?php
+    include('./nav.php');
+    ?>
 
-            <label for="openSidebarMenu" class="sidebarIconToggle">
-                <div class="spinner diagonal part-1"></div>
-                <div class="spinner horizontal"></div>
-                <div class="spinner diagonal part-2"></div>
-            </label>
-
-            <div class="w-100 text-center">
-                <a class="top text-nowrap" href="#">LOGO</a>
+    <section>
+        <div class="d-flex flex-column-reverse flex-sm-column-reverse flex-md-row flex-lg-row">
+            <div class="col-12 col-sm-12 col-md-6 col-lg-6 d-none d-sm-none d-md-block d-lg-block position-fixed signup-img-wrapper">
+                <img src="./img/login<?= $img_index ?>.jpg" class="login-img" width="100%" alt="">
             </div>
-
-            <div id="sidebarMenu">
-                <ul class="sidebarMenuInner text-black fw-bold">
-                    <div class="z-99">
-                        <li class="logo">
-                            <a href="#" class="text-white">LOGO</a>
-                        </li>
+            <div class="col-12 col-sm-12 col-md-6 col-lg-6 d-flex align-items-center justify-content-center flex-column py-5 px-3 mt-5 ms-50">
+                <div class="lead text-center fw-bold pt-3">アカウント新規作成</div>
+                <div class="lead text-center text-danger d-none" id="err">アカウント新規作成</div>
+                <div class="col-12 col-sm-12 col-md-8 col-lg-6 m-auto">
+                    <div class="mt-4">
+                        <label for="username">氏名</label>
+                        <input type="text" class="form-control" id="username">
                     </div>
-                    <div class="z-99  d-flex justify-content-around col-12 col-sm-12 col-md-5 col-lg-5 flex-direction-menu">
-                        <?php
-                        if (isset($_SESSION['username'])) {
-                        ?>
-                            <li class="bg-black"><a href="./setting.php" class="text-white"><?= $_SESSION['username'] ?></a></li>
-                            <li class="bg-black"><a href="./register-merchandise.php" class="text-white">商品登録</a></li>
-                        <?php
-                        } else {
-                        ?>
-                            <li class="bg-black"><a href="./signup.php" class="text-white">アカウント作成</a></li>
-                        <?php
-                        }
-                        ?>
-                        <li class="bg-black"><a href="#" class="text-white">Sample</a></li>
-                        <li class="bg-black"><a href="#" class="text-white">Sample</a></li>
+
+                    <div class="mt-4">
+                        <label for="number">電話番号</label>
+                        <input type="text" class="form-control" id="number">
                     </div>
-                </ul>
-                <div class="hidden-nav-menu" id="hiddenNav"></div>
-            </div>
-        </div>
-    </nav>
 
-    <section class="col-10 m-auto mt-5">
-        <div class="pt-5">
-            <div class="lead text-center fw-bold">アカウント新規作成</div>
-            <div class="lead text-center text-danger d-none" id="err">アカウント新規作成</div>
-            <div class="col-12 col-sm-12 col-md-8 col-lg-6 m-auto">
-                <div class="mt-4">
-                    <label for="username">氏名</label>
-                    <input type="text" class="form-control" id="username">
-                </div>
-
-                <div class="mt-4">
-                    <label for="number">電話番号</label>
-                    <input type="text" class="form-control" id="number">
-                </div>
-
-                <div class="mt-4">
-                    <label for="mailaddress">メールアドレス</label>
-                    <input type="text" class="form-control" id="mailaddress">
-                </div>
-
-                <div class="mt-4">
-                    <label for="birthday">誕生日</label>
-                    <input type="date" class="form-control" id="birthday">
-                </div>
-
-                <div class="mt-4">
-                    <label for="postnumber">郵便番号</label>
-                    <div class="d-flex">
-                        <input type="text" class="form-control" id="postnumber">
-                        <button type="button" class="btn btn-outline-dark mx-2 text-nowrap" id="searchAddress">住所検索</button>
+                    <div class="mt-4">
+                        <label for="mailaddress">メールアドレス</label>
+                        <input type="text" class="form-control" id="mailaddress">
                     </div>
-                </div>
 
-                <div class="mt-4">
-                    <label for="address">住所</label>
-                    <input type="text" class="form-control" id="address">
-                </div>
+                    <div class="mt-4">
+                        <label for="birthday">誕生日</label>
+                        <input type="date" class="form-control" id="birthday">
+                    </div>
 
-                <div class="mt-4">
-                    <label for="password">パスワード</label>
-                    <input type="password" class="form-control" id="password">
-                </div>
+                    <div class="mt-4">
+                        <label for="postnumber">郵便番号</label>
+                        <div class="d-flex">
+                            <input type="text" class="form-control" id="postnumber">
+                            <button type="button" class="btn btn-outline-dark mx-2 text-nowrap" id="searchAddress">住所検索</button>
+                        </div>
+                    </div>
 
-                <div class="text-center mt-5">
-                    <button class="btn btn-outline-dark col-12" id="submit">登録</button>
+                    <div class="mt-4">
+                        <label for="address">住所</label>
+                        <input type="text" class="form-control" id="address">
+                    </div>
+
+                    <div class="mt-4">
+                        <label for="password">パスワード</label>
+                        <input type="password" class="form-control" id="password">
+                    </div>
+
+                    <div class="text-center mt-5">
+                        <button class="btn btn-outline-dark col-12" id="submit">登録</button>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
-
-    <footer class="py-5 bg-dark mt-5">
-        <div class="lead text-center text-white">©all rights reserved</div>
-    </footer>
 
     <script>
         const hidden = document.getElementById('hiddenNav');
@@ -126,10 +89,10 @@ session_start();
     </script>
 
     <script>
-        let post_number = document.getElementById('postnumber').value;
         document.getElementById('searchAddress').addEventListener('click', () => {
-            console.log("clicked");
+            let post_number = document.getElementById('postnumber').value;
             if (post_number != "") {
+                console.log("a");
                 const api_url = "https://zipcloud.ibsnet.co.jp/api/search?zipcode=" + post_number;
                 const get_postnumber_xhr = new XMLHttpRequest();
 
@@ -175,6 +138,7 @@ session_start();
             let number = document.getElementById('number').value;
             let mail = document.getElementById('mailaddress').value;
             let birthday = document.getElementById('birthday').value;
+            //年齢は誕生日から計算する
             let age = calcAge(birthday);
             let postnumber = document.getElementById('postnumber').value;
             let address = document.getElementById('address').value;

@@ -18,49 +18,9 @@ session_start();
 
 <body>
 
-    <nav>
-        <div class="header w-100"></div>
-        <div class="container-fluid">
-            <input type="checkbox" class="openSidebarMenu navbar-brand" id="openSidebarMenu">
-
-            <label for="openSidebarMenu" class="sidebarIconToggle">
-                <div class="spinner diagonal part-1"></div>
-                <div class="spinner horizontal"></div>
-                <div class="spinner diagonal part-2"></div>
-            </label>
-
-            <div class="w-100 text-center">
-                <a class="top text-nowrap" href="#">LOGO</a>
-            </div>
-
-            <div id="sidebarMenu">
-                <ul class="sidebarMenuInner text-black fw-bold">
-                    <div class="z-99">
-                        <li class="logo">
-                            <a href="#" class="text-white">LOGO</a>
-                        </li>
-                    </div>
-                    <div class="z-99  d-flex justify-content-around col-12 col-sm-12 col-md-5 col-lg-5 flex-direction-menu">
-                        <?php
-                        if (isset($_SESSION['username'])) {
-                        ?>
-                            <li class="bg-black"><a href="./setting.php" class="text-white"><?= $_SESSION['username'] ?></a></li>
-                            <li class="bg-black"><a href="./register-merchandise.php" class="text-white">商品登録</a></li>
-                        <?php
-                        } else {
-                        ?>
-                            <li class="bg-black"><a href="./signup.php" class="text-white">アカウント作成</a></li>
-                        <?php
-                        }
-                        ?>
-                        <li class="bg-black"><a href="#" class="text-white">Sample</a></li>
-                        <li class="bg-black"><a href="#" class="text-white">Sample</a></li>
-                    </div>
-                </ul>
-                <div class="hidden-nav-menu" id="hiddenNav"></div>
-            </div>
-        </div>
-    </nav>
+    <?php
+    include('./nav.php');
+    ?>
 
     <section class="col-10 m-auto mt-5">
         <div class="pt-5">
@@ -125,9 +85,12 @@ session_start();
     </script>
 
     <script>
+        // JavaScriptで通信するためのXHRを定義
         const register_merchandise_xhr = new XMLHttpRequest();
+        //送信するためのデータを格納するformdataを定義
         let fd = new FormData();
 
+        //写真が選択された時にformdataに格納
         document.getElementById('merchandiseImg1').addEventListener('change', (e) => {
             fd.append("img1", e.target.files[0]);
         });
@@ -142,6 +105,7 @@ session_start();
 
         });
 
+        //登録ボタンを押したときの処理
         document.getElementById('submit').addEventListener('click', () => {
             let m_name = document.getElementById('merchandiseName').value;
             let m_price = document.getElementById('merchandisePrice').value;
@@ -164,8 +128,7 @@ session_start();
             register_merchandise_xhr.onload = (e) => {
                 let json = e.target.response;
                 let res = JSON.parse(json);
-                // location.href = "./merchandise.php?id=" + res;
-                console.log(res);
+                location.href = "./item.php?id=" + res;
             }
         });
     </script>
