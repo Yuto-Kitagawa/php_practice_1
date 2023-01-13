@@ -74,6 +74,11 @@ class Functions extends Database
         return $return_list;
     }
 
+    public function toggle_good($merchandise_id)
+    {
+        
+    }
+
     //ユーザー登録する関数
     public function register_user($userid, $username, $usernumber, $usermail, $userage, $userbirthday, $useraddress, $userpostnumber, $password)
     {

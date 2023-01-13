@@ -24,8 +24,9 @@
                     <?php
                     if (isset($_SESSION['username'])) {
                     ?>
-                        <li class="bg-black"><a href="./setting.php" class="text-white"><?= $_SESSION['username'] ?></a></li>
+                        <li class="bg-black"><a href="./profile.php" class="text-white"><?= $_SESSION['username'] ?></a></li>
                         <li class="bg-black"><a href="./register-merchandise.php" class="text-white">商品登録</a></li>
+                        <li class="bg-black"><a href="./action/signout.php" class="text-white">ログアウト</a></li>
                     <?php
                     } else {
                     ?>
