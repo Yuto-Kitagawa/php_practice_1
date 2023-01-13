@@ -1,14 +1,71 @@
+/* 全体的なCSS */
+.main-section {
+    min-height: 80vh;
+}
+
+
+/* 
+=====================
+ローディング画面用CSS
+=====================
+ */
+
+.count-load {
+    background: rgba(186, 186, 186, 0.518);
+}
+
+.load {
+    z-index: 10099;
+    transition: 2s all cubic-bezier(1, .01, .58, 1);
+}
+
+.loaded {
+    transform: translateX(-100vw);
+    opacity: 0;
+}
+
+.circle {
+    background: tomato;
+    position: absolute;
+    z-index: 999;
+}
+
+.circle.moved::after {
+    transition: 3s all ease-in-out;
+    transform: translate(-100vw);
+}
+
+.circle::after {
+    content: "";
+    position: absolute;
+    border-radius: 3000px;
+    background: #eeacac;
+    z-index: -1;
+}
+
+.circle p {
+    color: #c4c925;
+    mix-blend-mode: difference;
+}
+
+/* index.phpのheader用CSS */
 header>div>img {
     height: 70vh;
     object-fit: cover;
     object-position: bottom center;
 }
 
+/* index.phpの商品一覧の写真用CSS */
 .merchandise-list-img {
     height: 30vh;
     object-fit: cover;
 }
 
+/* 
+==================
+商品詳細画面用のCSS
+==================
+ */
 .merchandise-img {
     height: 100%;
     object-fit: cover;
@@ -29,6 +86,17 @@ header>div>img {
     z-index: 99;
 }
 
+/* 支払い方法 */
+.pay-way {
+    border: 1px solid rgb(166, 166, 166);
+    cursor: pointer;
+}
+
+.pay-way.checked {
+    border: none;
+    background: rgb(166, 166, 166);
+}
+
 
 #nextMerchandiseImg {
     background: white;
@@ -39,29 +107,54 @@ header>div>img {
     z-index: 99;
 }
 
-.purchase-screen {
+.purchase-screen-wrapper {
     transition: .4s all ease-in-out;
-    z-index: 9999;
+    z-index: 999;
     background-color: rgba(128, 128, 128, 0.764);
     width: 100vw;
     height: 100vh;
 }
 
+.purchase-screen {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+
+/* login.php用のCSS */
 .login-img {
     height: 100vh;
     object-fit: cover;
 }
 
-#merchandiseImg1 {
-    object-fit: cover;
+/* cart.php用CSS */
+.cart-list {
+    min-height: 30vh;
+    border: 1px solid rgb(201, 201, 201);
 }
 
-.navmargin {
-    margin-top: 10vh !important;
+.change-number {
+    cursor: pointer;
 }
 
-@media screen and (max-width:992px) {}
+/* 携帯用 */
+@media screen and (max-width:992px) {
+    .merchandise-detail-img-wrapper {
+        left: 50%;
+        transform: translateX(-50%);
+    }
 
+    .circle::after {
+        content: "";
+        position: absolute;
+        bottom: -20vh;
+        right: -50vw;
+        padding: 40vh;
+    }
+}
+
+/* PC用 */
 @media screen and (min-width:765px) {
     .ms-50 {
         margin-left: 50%;
@@ -69,5 +162,13 @@ header>div>img {
 
     .signup-img-wrapper {
         z-index: -99;
+    }
+
+    .circle::after {
+        content: "";
+        position: absolute;
+        bottom: -40vh;
+        left: -20vw;
+        padding: 60vh;
     }
 }

@@ -34,6 +34,7 @@
                     <?php
                     }
                     ?>
+                    <li class="bg-black"><a href="./cart.php" class="text-white">カート</a></li>
                 </div>
             </ul>
             <div class="hidden-nav-menu" id="hiddenNav"></div>

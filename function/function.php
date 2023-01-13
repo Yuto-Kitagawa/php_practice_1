@@ -20,15 +20,20 @@ class Functions extends Database
         //SQL文を実行
         $sth->execute();
 
-        //1行だけ取得できた時
+        //1行だけ取得できた時(送られてきたメールアドレスが1件だけ登録されている場合)
         if ($sth->rowCount() == 1) {
-            $row = $sth->fetch(PDO::FETCH_ASSOC);
-            //保存されているパスワードと送られてきたパスワードを検証
-            if (password_verify($userpassowrd, $row['password'])) {
+            $res = $sth->fetch(PDO::FETCH_ASSOC);
+            //保存されているパスワードと送られてきたパスワードを検証し、一致した場合
+            if (password_verify($userpassowrd, $res['password'])) {
                 session_start();
-                $_SESSION['userid']   = $row['user_id'];
-                $_SESSION['username'] = $row['user_name'];
-                $_SESSION['usermail'] = $row['user_mail'];
+                $good_array = $this->get_good($res['user_id']);
+                if ($good_array[0] != "false") {
+                    $_SESSION['good'] = $good_array;
+                }
+                // セッションに必要なデータを格納する
+                $_SESSION['userid']   = $res['user_id'];
+                $_SESSION['username'] = $res['user_name'];
+                $_SESSION['usermail'] = $res['user_mail'];
                 return "logged";
             } else {
                 return "err";
@@ -36,6 +41,37 @@ class Functions extends Database
         } else {
             return "err";
         }
+    }
+
+    //いいねを取得する関数
+    public function get_good($userid)
+    {
+        //いいねテーブルから商品IDを取得
+        $get_good_sql =   "SELECT merchandise_id FROM good WHERE user_id = :userid;";
+
+        //SQL文を実行する準備
+        $sth = $this->conn->prepare($get_good_sql);
+
+        //バリデート(SQL用の正規表現[* → "*"]など、脆弱性がないように変換)
+        $sth->bindValue(':userid', $userid, PDO::PARAM_STR);
+
+        //SQL文を実行
+        $sth->execute();
+
+        //返却用配列を定義
+        $return_list = [];
+
+        if ($sth->rowCount() > 0) {
+            //SQLで取得したデータを1行ずつ分解して配列に格納する
+            while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+                array_push($return_list, $row);
+            };
+        } else {
+            array_push($return_list, "false");
+        }
+
+        //結果を格納した配列を返却
+        return $return_list;
     }
 
     //ユーザー登録する関数
@@ -163,7 +199,6 @@ class Functions extends Database
                 $sth->bindValue(':mimg3',  $m_img3,  PDO::PARAM_STR);
             }
         }
-
         //SQL文を実行
         $sth->execute();
 
@@ -221,6 +256,85 @@ class Functions extends Database
         $res = $sth->fetch(PDO::FETCH_ASSOC);
 
         //actionに返却
+        return $res;
+    }
+
+    //$_SESSION['cart']に入っているidの詳細データを返却する処理
+    public function get_cart($cart_array)
+    {
+        //カートの中の商品の数を取得
+        $cart_length = count($cart_array);
+        //カートの中の商品IDを取得
+        $key_array = array_keys($cart_array);
+
+        //商品ごとの数を格納
+        $num_array = [];
+        for ($i = 0; $i < $cart_length; $i++) {
+            array_push($num_array, $cart_array[$key_array[$i]]);
+        }
+
+        /**
+         * いつもはバインドで :idや:nameでバインドしていたが、今回は配列でしたいので、疑問符で指定します。
+         * 配列をIN句で使用する(https://chaika.hatenablog.com/entry/2016/06/22/092149 引用)
+         */
+        $bindParams = substr(str_repeat(',?', count($key_array)), 1); //(?,?,?・・) → バインドパラメータを作成
+
+        // FIELD句は指定した順番で結果を返すようにするための関数です。
+        //指定する理由は、商品の個数の配列通りの順番に商品の情報を入れたいため。
+        $get_cart_sql = "SELECT * FROM merchandise WHERE merchandise_id IN ({$bindParams}) ORDER BY FIELD( merchandise_id, {$bindParams});";
+
+
+        //SQL文を実行する準備
+        $sth = $this->conn->prepare($get_cart_sql);
+
+        //バインドを2回しているため疑問符が倍の量になる。(SELECT * FROM merchandise WHERE merchandise_id IN (?,?,?[配列1つ目]) ORDER BY FIELD( merchandise_id, ?,?,?[配列2つ目]);
+        //今回は配列をバインドするため、配列の最後にもう一度配列をつなげる(execute関数は1つの配列しか指定できないため(多分))
+        /*(例) [0,1,2,3,4]   →  [0,1,2,3,4,0,1,2,3,4] */
+        foreach ($key_array as $val) {
+            array_push($key_array, $val);
+        }
+
+        //SQL文を実行
+        //実行されるSQL文の中のバインドパラメータと**同数**の要素からなる、値の配列。すべての値は**PDO::PARAM_STR**として扱われる。
+        $sth->execute($key_array);
+
+        $res_array = [];
+        //SQLで取得したデータを1行ずつ分解して配列に格納する(1行でもOK *複数行はWHILE文で繰り返さないと最後の行しか返却されない)
+        while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+            array_push($res_array, $row);
+        }
+
+        //actionに返却
+        //複数の値を返したい場合は、一つの配列にまとめるか、下のように無理やり配列にする方法があります。
+        return [$res_array, $num_array];
+    }
+
+    public function purchase($merchandise_id, $number, $payway)
+    {
+        session_start();
+        //データベースに格納するためにユーザーIDを格納
+        $userid = $_SESSION['userid'];
+        $purchase_sql = "INSERT INTO history (merchandise_id,user_id,number,type) VALUES (:merchandiseid,:userid,:number,:type);";
+
+        //SQL文を実行する準備
+        $sth = $this->conn->prepare($purchase_sql);
+
+        //バリデート(SQL用の正規表現[* → "*"]など、脆弱性がないように変換)
+        $sth->bindValue(':merchandiseid', $merchandise_id, PDO::PARAM_STR);
+        $sth->bindValue(':userid', $userid, PDO::PARAM_STR);
+        $sth->bindValue(':number', $number, PDO::PARAM_INT);
+        $sth->bindValue(':type', $payway, PDO::PARAM_INT);
+
+        //SQL文を実行
+        //$resultには、データベースに格納することができればtrue、そうでなければfalseが返却される
+        $result = $sth->execute();
+
+        if ($result == true) {
+            $res = "success";
+        } else {
+            $res = "err";
+        }
+
         return $res;
     }
 }

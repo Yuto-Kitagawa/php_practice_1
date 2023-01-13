@@ -4,6 +4,12 @@
     top: 0;
     left: 0;
     background: rgb(0, 0, 0);
+    z-index: 999;
+}
+
+
+.navmargin {
+    margin-top: 10vh !important;
 }
 
 /* PC */

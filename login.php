@@ -21,7 +21,7 @@ $img_index = rand(1, 3);
     include('./nav.php');
     ?>
 
-    <section class="navmargin">
+    <section class="">
         <div class="d-flex flex-column-reverse flex-sm-column-reverse flex-md-row flex-lg-row">
             <div class="col-12 col-sm-12 col-md-6 col-lg-6 d-none d-sm-none d-md-block d-lg-block">
                 <img src="./img/login<?= $img_index ?>.jpg" class="login-img" width="100%" alt="">

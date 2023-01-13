@@ -16,6 +16,16 @@ session_start();
 </head>
 
 <body>
+    <div class="load position-fixed top-0 start-0 vh-100 vw-100 bg-white" id="load">
+        <div class="h-100 fs-1 circle d-flex align-items-center justify-content-center col-12">
+            <p class="col-11 m-auto">
+                The basic components of energy balance include <br>
+                energy intake,<br>
+                energy expenditure,<br>
+                and energy storage.
+            </p>
+        </div>
+    </div>
 
     <?php
     include('./nav.php');
@@ -30,14 +40,29 @@ session_start();
 
     <section class="col-10 m-auto mt-5">
         <div class="lead">商品一覧</div>
-        <div class="d-flex flex-wrap" id="merchandiseListWrapper">
-
-        </div>
+        <div class="d-flex flex-wrap" id="merchandiseListWrapper"></div>
     </section>
 
-    <div class="" style="height:200vh;"></div>
+    <footer class="py-5 bg-dark">
+        <div class="lead text-center text-white">©all rights reserved</div>
+    </footer>
 
     <script>
+        function loading() {
+            var img_elements = document.querySelectorAll("img");
+            for (var i = 0; i < img_elements.length; i++) {
+                // 画像読み込み完了したときの処理    
+                img_elements[i].addEventListener('load', (e) => {
+                    setTimeout(() => {
+                        document.getElementsByClassName('circle')[0].classList.add('moved');
+                        setTimeout(() => {
+                            document.getElementById('load').classList.add('loaded')
+                        }, 300);
+                    }, 800);
+                });
+            }
+        }
+
         const hidden = document.getElementById('hiddenNav');
         const toggler = document.getElementById('openSidebarMenu');
         hidden.addEventListener('click', () => {
@@ -111,6 +136,7 @@ session_start();
                 merchandise_wrapper.appendChild(for_padding);
                 m_list_wrapper.appendChild(merchandise_wrapper);
 
+                loading();
             }
         }
     </script>

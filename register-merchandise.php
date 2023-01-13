@@ -64,8 +64,6 @@ session_start();
                 <div class="mt-5 text-center">
                     <button id="submit" class="btn btn-outline-dark col-12">登録</button>
                 </div>
-
-
             </div>
         </div>
     </section>
