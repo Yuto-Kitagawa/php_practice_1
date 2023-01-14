@@ -21,6 +21,14 @@ $merchandise_id = $_GET['id'];
 
 
 <body>
+    <div class="count-load position-fixed top-0 start-0 vh-100 vw-100 d-flex align-items-center justify-content-center d-none" id="load">
+
+        <div class="spinner-grow" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+
     <?php
     if (isset($_SESSION['userid']) && $_SESSION['userid'] != "") {
     ?>
@@ -106,7 +114,7 @@ $merchandise_id = $_GET['id'];
     ?>
 
     <section class="col-10 m-auto">
-        <div class="d-flex flex-column flex-sm-column flex-md-column flex-lg-row pt-4 navmargin">
+        <div class="d-flex flex-column flex-sm-column flex-md-column flex-lg-row py-4 navmargin">
             <div class="col-12 col-sm-12 col-md-8 col-lg-6 position-relative merchandise-detail-img-wrapper" id="imgWrapper">
                 <div class="position-absolute" id="backMerchandiseImg">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-left-circle-fill" viewBox="0 0 16 16">
@@ -137,15 +145,25 @@ $merchandise_id = $_GET['id'];
                 <div class="my-3">
                     <div class="px-5">
                         <?php
-                        if (isset($_SESSION['good']) && in_array($merchandise_id, $_SESSION['good'])) {
-                            $good_color = "red";
+                        if (!isset($_SESSION['userid']) || $_SESSION['userid'] == "") {
+                        ?>
+                            <a href="./login.php">
+                                <svg xmlns="http://www.w3.org/2000/svg" id="good" width="32" height="32" fill="<?= $good_color ?>" class="bi bi-heart" viewBox="0 0 16 16">
+                                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />
+                                </svg>
+                            </a>
+                        <?php
                         } else {
-                            $good_color = "currentColor";
+                        ?>
+                            <svg xmlns="http://www.w3.org/2000/svg" id="none" width="32" height="32" fill="currentColor" class="good-icon d-none opacity-0 bi bi-heart" viewBox="0 0 16 16">
+                                <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" id="good" width="32" height="32" fill="red" class="good-icon d-none opacity-0 bi bi-heart-fill" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" />
+                            </svg>
+                        <?php
                         };
                         ?>
-                        <svg xmlns="http://www.w3.org/2000/svg" id="good" width="32" height="32" fill="<?= $good_color ?>" class="bi bi-heart" viewBox="0 0 16 16">
-                            <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />
-                        </svg>
                     </div>
                     <div class="px-5 mt-2">
                         <div class="">
@@ -201,6 +219,159 @@ $merchandise_id = $_GET['id'];
         hidden.addEventListener('click', () => {
             if (toggler.checked) {
                 toggler.checked = false;
+            }
+        });
+    </script>
+
+
+
+    <script>
+        //写真の大きさを調整するための関数
+        function ajustImg() {
+            let img = document.getElementsByClassName('merchandise-img')[0];
+            let imgWrapper = document.getElementById('imgWrapper');
+            let width = img.clientWidth;
+            imgWrapper.style.height = width + "px";
+        }
+
+        //今表示されている写真を指定するための変数を定義
+        let imgCounter = 0;
+
+        function merchandiseCarousel(e) {
+            //写真の枚数を格納
+            let imgMaxIndex = document.querySelectorAll('.merchandise-img').length;
+
+            //写真の枚数だけ繰り返し
+            document.getElementsByClassName('merchandise-img')[imgCounter].classList.remove('show');
+
+            //戻るボタンが押されたときの処理
+            if (e == "back") {
+                // 一枚前の写真を表示させるために1引く
+                imgCounter--;
+                // マイナスになれば一番後ろの写真にする
+                if (imgCounter == -1) {
+                    imgCounter = imgMaxIndex - 1;
+                }
+                // 表示させる写真のタグのクラスにshowを追加する
+                document.querySelectorAll('.merchandise-img')[imgCounter].classList.add('show');
+            }
+
+            //次ボタンが押された時の処理
+            if (e == "next") {
+                // 一枚あとの写真にするための１追加する
+                imgCounter++;
+                //もし一番すべての枚数より数が大きくなると、一番最初の写真にもどす
+                if (imgCounter >= imgMaxIndex) {
+                    imgCounter = 0;
+                }
+                // 表示させる写真のタグのクラスにshowを追加する
+                document.querySelectorAll('.merchandise-img')[imgCounter].classList.add('show');
+            }
+        }
+
+        // 写真の戻るボタンを押したときにmerchandiseCarousel関数にbackを送る
+        document.getElementById('backMerchandiseImg').addEventListener('click', () => {
+            merchandiseCarousel('back')
+        });
+
+        // 写真の次ボタンを押したときにmerchandiseCarousel関数にnextを送る
+        document.getElementById('nextMerchandiseImg').addEventListener('click', () => {
+            merchandiseCarousel('next')
+        });
+
+        function getMerchandiseInfo() {
+            //XHRを使用して通信
+            const get_merchandise_xhr = new XMLHttpRequest();
+            //送信するためのデータを格納するformdataを定義
+            let fd = new FormData();
+            //formdataにデータを格納
+            fd.append("merchandise_id", merchandise_id);
+
+            //通信方法、通信先を定義
+            get_merchandise_xhr.open('post', "./action/get-merchandise.php");
+            // 指定したURLに通信
+            get_merchandise_xhr.send(fd);
+
+            // 通信後の処理
+            get_merchandise_xhr.onload = (e) => {
+                let json = e.target.response;
+                let res = JSON.parse(json);
+                if (res.length == 2) {
+                    let good_status = res[1];
+                    if (good_status == "good") {
+                        document.getElementById('good').classList.remove('d-none');
+                        document.getElementById('good').classList.remove('opacity-0');
+                    } else {
+                        document.getElementById('none').classList.remove('opacity-0');
+                        document.getElementById('none').classList.remove('d-none');
+                    }
+                    res = res[0]
+                } else {
+                    res = res[0];
+                }
+                //送られてきたデータを表示
+                document.getElementById('price').value = parseInt(res.merchandise_price);
+                document.getElementById('priceLabel').textContent = parseInt(res.merchandise_price).toLocaleString() + "円";
+                document.getElementById('merchandiseImg1').setAttribute('src', "./img/" + res.img1);
+                document.getElementById('name').textContent = res.merchandise_name;
+
+                //写真を生成する場所を指定
+                let imgParent = document.getElementById('imgWrapper');
+
+                //写真があれば生成して表示
+                if (res.img2) {
+                    let img2 = document.createElement('img');
+                    img2.setAttribute('src', "./img/" + res.img2);
+                    img2.setAttribute('class', "merchandise-img position-absolute");
+                    img2.setAttribute('width', "100%");
+                    img2.setAttribute('load', "lazy");
+                    imgParent.appendChild(img2);
+                }
+
+                //写真があれば生成して表示
+                if (res.img3) {
+                    let img3 = document.createElement('img');
+                    img3.setAttribute('src', "./img/" + res.img3);
+                    img3.setAttribute('class', "merchandise-img position-absolute");
+                    img3.setAttribute('width', "100%");
+                    img3.setAttribute('load', "lazy");
+                    imgParent.appendChild(img3);
+                }
+                // 写真を生成した後にすべての写真のサイズを調整
+                ajustImg();
+            }
+        }
+
+        getMerchandiseInfo();
+
+        window.addEventListener('resize', () => {
+            getMerchandiseInfo();
+            ajustImg();
+        })
+    </script>
+
+    <script>
+        //カートに入れる時の処理
+        document.getElementById('cartBtn').addEventListener('click', () => {
+            //個数を取得
+            // 個数が1以上の時に処理
+            if (document.getElementById('number').value == '' || document.getElementById('number').value <= 0) {
+                document.getElementById('numerr').classList.remove('d-none');
+            } else {
+                //商品IDを取得
+                number = document.getElementById('number').value;
+                const cart_xhr = new XMLHttpRequest();
+                let fd = new FormData();
+                //商品IDと個数を送信するためにFormDataに格納
+                fd.append('merchandise_id', merchandise_id);
+                fd.append('number', number);
+                cart_xhr.open('post', "./action/input-cart.php");
+                cart_xhr.send(fd);
+                cart_xhr.onload = (e) => {
+                    let json = e.target.response;
+                    let res = JSON.parse(json);
+                    location.href = "./cart.php";
+                }
             }
         });
     </script>
@@ -298,148 +469,53 @@ $merchandise_id = $_GET['id'];
                     }
                 });
             });
+
+            document.querySelectorAll('.good-icon').forEach(el => {
+                el.addEventListener('click', () => {
+                    document.getElementById('load').classList.remove('d-none');
+                    setTimeout(() => {
+
+
+                        let direct = "";
+
+                        // イイネをまだけていないアイコンを押したらイイネする
+                        // イイネが付いているアイコンを押したらイイネ解除
+                        if (el.id == "none") {
+                            direct = "good";
+                        } else {
+                            direct = "none";
+                        }
+                        const toggle_good_xhr = new XMLHttpRequest();
+                        let fd = new FormData();
+                        fd.append("merchandise_id", merchandise_id);
+                        fd.append("direct", direct);
+
+                        toggle_good_xhr.open('post', "./action/toggle-good.php");
+                        toggle_good_xhr.send(fd);
+                        toggle_good_xhr.onload = (e) => {
+                            let json = e.target.response;
+                            console.log(json);
+                            let res = JSON.parse(json);
+                            if (res == "good") {
+                                document.getElementById('good').classList.remove('d-none');
+                                document.getElementById('good').classList.remove('opacity-0');
+                                document.getElementById('none').classList.add('d-none');
+                                document.getElementById('none').classList.add('opacity-0');
+                            } else {
+                                document.getElementById('good').classList.add('d-none');
+                                document.getElementById('good').classList.add('opacity-0');
+                                document.getElementById('none').classList.remove('d-none');
+                                document.getElementById('none').classList.remove('opacity-0');
+                            }
+                        }
+                        document.getElementById('load').classList.add('d-none');
+                    }, 300);
+                })
+            })
         </script>
     <?php
     }
     ?>
-
-    <script>
-        //カートに入れる時の処理
-        document.getElementById('cartBtn').addEventListener('click', () => {
-            //個数を取得
-            // 個数が1以上の時に処理
-            if (document.getElementById('number').value == '' || document.getElementById('number').value <= 0) {
-                document.getElementById('numerr').classList.remove('d-none');
-            } else {
-                //商品IDを取得
-                number = document.getElementById('number').value;
-                const cart_xhr = new XMLHttpRequest();
-                let fd = new FormData();
-                //商品IDと個数を送信するためにFormDataに格納
-                fd.append('merchandise_id', merchandise_id);
-                fd.append('number', number);
-                cart_xhr.open('post', "./action/input-cart.php");
-                cart_xhr.send(fd);
-                cart_xhr.onload = (e) => {
-                    let json = e.target.response;
-                    let res = JSON.parse(json);
-                    location.href = "./cart.php";
-                }
-            }
-        });
-    </script>
-
-    <script>
-        //写真の大きさを調整するための関数
-        function ajustImg() {
-            let img = document.getElementsByClassName('merchandise-img')[0];
-            let imgWrapper = document.getElementById('imgWrapper');
-            let width = img.clientWidth;
-            imgWrapper.style.height = width + "px";
-        }
-
-        //今表示されている写真を指定するための変数を定義
-        let imgCounter = 0;
-
-        function merchandiseCarousel(e) {
-            //写真の枚数を格納
-            let imgMaxIndex = document.querySelectorAll('.merchandise-img').length;
-
-            //写真の枚数だけ繰り返し
-            document.getElementsByClassName('merchandise-img')[imgCounter].classList.remove('show');
-
-            //戻るボタンが押されたときの処理
-            if (e == "back") {
-                // 一枚前の写真を表示させるために1引く
-                imgCounter--;
-                // マイナスになれば一番後ろの写真にする
-                if (imgCounter == -1) {
-                    imgCounter = imgMaxIndex - 1;
-                }
-                // 表示させる写真のタグのクラスにshowを追加する
-                document.querySelectorAll('.merchandise-img')[imgCounter].classList.add('show');
-            }
-
-            //次ボタンが押された時の処理
-            if (e == "next") {
-                // 一枚あとの写真にするための１追加する
-                imgCounter++;
-                //もし一番すべての枚数より数が大きくなると、一番最初の写真にもどす
-                if (imgCounter >= imgMaxIndex) {
-                    imgCounter = 0;
-                }
-                // 表示させる写真のタグのクラスにshowを追加する
-                document.querySelectorAll('.merchandise-img')[imgCounter].classList.add('show');
-            }
-        }
-
-        // 写真の戻るボタンを押したときにmerchandiseCarousel関数にbackを送る
-        document.getElementById('backMerchandiseImg').addEventListener('click', () => {
-            merchandiseCarousel('back')
-        });
-
-        // 写真の次ボタンを押したときにmerchandiseCarousel関数にnextを送る
-        document.getElementById('nextMerchandiseImg').addEventListener('click', () => {
-            merchandiseCarousel('next')
-        });
-
-        function getMerchandiseInfo() {
-            //XHRを使用して通信
-            const get_merchandise_xhr = new XMLHttpRequest();
-            //送信するためのデータを格納するformdataを定義
-            let fd = new FormData();
-            //formdataにデータを格納
-            fd.append("merchandise_id", merchandise_id);
-
-            //通信方法、通信先を定義
-            get_merchandise_xhr.open('post', "./action/get-merchandise.php");
-            // 指定したURLに通信
-            get_merchandise_xhr.send(fd);
-
-            // 通信後の処理
-            get_merchandise_xhr.onload = (e) => {
-                let json = e.target.response;
-                let res = JSON.parse(json);
-                //送られてきたデータを表示
-                document.getElementById('price').value = parseInt(res.merchandise_price);
-                document.getElementById('priceLabel').textContent = parseInt(res.merchandise_price).toLocaleString() + "円";
-                document.getElementById('merchandiseImg1').setAttribute('src', "./img/" + res.img1);
-                document.getElementById('name').textContent = res.merchandise_name;
-
-                //写真を生成する場所を指定
-                let imgParent = document.getElementById('imgWrapper');
-
-                //写真があれば生成して表示
-                if (res.img2) {
-                    let img2 = document.createElement('img');
-                    img2.setAttribute('src', "./img/" + res.img2);
-                    img2.setAttribute('class', "merchandise-img position-absolute");
-                    img2.setAttribute('width', "100%");
-                    img2.setAttribute('load', "lazy");
-                    imgParent.appendChild(img2);
-                }
-
-                //写真があれば生成して表示
-                if (res.img3) {
-                    let img3 = document.createElement('img');
-                    img3.setAttribute('src', "./img/" + res.img3);
-                    img3.setAttribute('class', "merchandise-img position-absolute");
-                    img3.setAttribute('width', "100%");
-                    img3.setAttribute('load', "lazy");
-                    imgParent.appendChild(img3);
-                }
-                // 写真を生成した後にすべての写真のサイズを調整
-                ajustImg();
-            }
-        }
-        
-        getMerchandiseInfo();
-
-        window.addEventListener('resize', () => {
-            getMerchandiseInfo();
-            ajustImg();
-        })
-    </script>
 </body>
 
 </html>

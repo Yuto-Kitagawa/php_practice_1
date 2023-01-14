@@ -12,6 +12,7 @@
 
 .count-load {
     background: rgba(186, 186, 186, 0.518);
+    z-index: 9999;
 }
 
 .load {
@@ -84,6 +85,11 @@ header>div>img {
     left: 2%;
     transform: translateY(-50%);
     z-index: 99;
+}
+
+.good-icon {
+    transition: .3s all ease-in-out;
+    cursor: pointer;
 }
 
 /* 支払い方法 */

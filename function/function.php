@@ -26,10 +26,6 @@ class Functions extends Database
             //保存されているパスワードと送られてきたパスワードを検証し、一致した場合
             if (password_verify($userpassowrd, $res['password'])) {
                 session_start();
-                $good_array = $this->get_good($res['user_id']);
-                if ($good_array[0] != "false") {
-                    $_SESSION['good'] = $good_array;
-                }
                 // セッションに必要なデータを格納する
                 $_SESSION['userid']   = $res['user_id'];
                 $_SESSION['username'] = $res['user_name'];
@@ -43,40 +39,62 @@ class Functions extends Database
         }
     }
 
-    //いいねを取得する関数
-    public function get_good($userid)
+
+    //いいねを登録・解除する関数
+    public function toggle_good($merchandise_id, $action)
     {
-        //いいねテーブルから商品IDを取得
-        $get_good_sql =   "SELECT merchandise_id FROM good WHERE user_id = :userid;";
+        session_start();
+        $userid = $_SESSION['userid'];
+
+        //送られてきたアクション(指示)でSQLを分ける
+        if ($action == "none") { //イイネをはずす処理
+            $toggle_good_sql = "DELETE FROM good WHERE user_id = :userid AND merchandise_id = :merchandiseid;";
+            // 解除したレスポンスを設定
+            $res = "removed";
+        } else { //イイネを登録する処理
+            //もし登録されていたらもう一行登録しないように、チェックして格納する。
+            $toggle_good_sql = "INSERT INTO good (merchandise_id,user_id) SELECT :merchandiseid, :userid FROM dual WHERE NOT EXISTS ( SELECT * FROM good WHERE merchandise_id = :merchandiseid AND user_id = :userid) LIMIT 1;";
+            //登録したレスポンスを設定
+            $res = "good";
+        }
 
         //SQL文を実行する準備
-        $sth = $this->conn->prepare($get_good_sql);
+        $sth = $this->conn->prepare($toggle_good_sql);
 
         //バリデート(SQL用の正規表現[* → "*"]など、脆弱性がないように変換)
+        $sth->bindValue(':merchandiseid', $merchandise_id, PDO::PARAM_STR);
         $sth->bindValue(':userid', $userid, PDO::PARAM_STR);
 
         //SQL文を実行
         $sth->execute();
-
-        //返却用配列を定義
-        $return_list = [];
-
-        if ($sth->rowCount() > 0) {
-            //SQLで取得したデータを1行ずつ分解して配列に格納する
-            while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-                array_push($return_list, $row);
-            };
-        } else {
-            array_push($return_list, "false");
-        }
-
-        //結果を格納した配列を返却
-        return $return_list;
+        return $res;
     }
 
-    public function toggle_good($merchandise_id)
+    //イイネがついているかをチェックする関数
+    //この関数は商品詳細情報を取得するときに実行される関数です。280行目あたりで実行しています。
+    public function get_good_status($merchandise_id, $user_id)
     {
-        
+        //merchandise_idに一致した情報を取得
+        $get_good_status_sql = "SELECT * FROM good WHERE merchandise_id = :merchandiseid AND user_id = :userid;";
+
+        //SQL文を実行する準備
+        $sth = $this->conn->prepare($get_good_status_sql);
+
+        //バリデート(SQL用の正規表現[* → "*"]など、脆弱性がないように変換)
+        $sth->bindValue(':merchandiseid', $merchandise_id, PDO::PARAM_STR);
+        $sth->bindValue(':userid', $user_id, PDO::PARAM_STR);
+
+        //SQL文を実行
+        $sth->execute();
+
+        //検索結果があるとイイネが付いているのでそのステータスを返却
+        if ($sth->rowCount() == 1) {
+            $status = "good";
+        } else {
+            $status = "none";
+        }
+
+        return $status;
     }
 
     //ユーザー登録する関数
@@ -260,8 +278,20 @@ class Functions extends Database
         //SQLで取得したデータを1行ずつ分解して配列に格納する(1行でもOK)
         $res = $sth->fetch(PDO::FETCH_ASSOC);
 
-        //actionに返却
-        return $res;
+        session_start();
+
+        //商品にいいねを付けているかを取得
+        if (isset($_SESSION['userid']) && $_SESSION['userid'] != "") {
+            $user_id = $_SESSION['userid'];
+            $good_status = $this->get_good_status($merchandise_id, $user_id);
+
+            //ログインしているかしていないかの判定を配列の長さで判定しているので、返却の際はどちらとも配列化([]をつける)しています。
+            //actionに返却
+            return [$res, $good_status];
+        } else {
+            //actionに返却
+            return [$res];
+        }
     }
 
     //$_SESSION['cart']に入っているidの詳細データを返却する処理
@@ -334,6 +364,9 @@ class Functions extends Database
         //$resultには、データベースに格納することができればtrue、そうでなければfalseが返却される
         $result = $sth->execute();
 
+        // $resultにはSQL文が成功しているか・失敗しているかのtrue・falseが格納されています。
+        //購入の処理なので一応書いているだけです。
+        //なにか処理をしたいときはここに書くといいかも？(しらんけど)
         if ($result == true) {
             $res = "success";
         } else {
